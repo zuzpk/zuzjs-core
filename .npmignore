@@ -1,0 +1,20 @@
+# Exclude everything
+*
+
+# But include the dist folder
+!dist/
+
+/node_modules
+/.pnp
+.pnp.js
+.yarn/install-state.gz
+
+.husky
+
+husky-post.js
+husky-pre.js
+
+publish-pre.js
+publish-post.js
+
+.vscode

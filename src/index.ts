@@ -87,6 +87,18 @@ export const removeDuplicates = <T>(array: T[]): T[] => {
     }, []);
 }
 
+export const removeDuplicateWords = (text: string): string => {
+  if (!text.trim()) return '';
+
+  // Split on any whitespace (handles multiple spaces, tabs, newlines)
+  const words = text.split(/\s+/).filter(Boolean);
+
+  // Use your existing function
+  const uniqueWords = removeDuplicates(words);
+
+  return uniqueWords.join(' ');
+};
+
 export const getCancelToken = () => axios.CancelToken.source();
 
 export const withCredentials = (include: boolean) => axios.defaults.withCredentials = include;
@@ -470,8 +482,6 @@ export const urlBase64ToUint8Array = (base64String: string): Uint8Array => {
   return outputArray;
 }
 
-
-
 export const checkPasswordStrength = (password: string): {
     score: number;
     result: string,
@@ -514,4 +524,28 @@ export const checkPasswordStrength = (password: string): {
         score, 
         result: score <= 2 ? "Weak" : score == 3 ? "Moderate" : score == 4 ? "Strong" : "Excellent",
         suggestion: suggestions };
+}
+
+export const escapeRegex = (str: string): string => {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+export const removeWords = (text: string, wordsToRemove: string[]): string => {
+
+  if (wordsToRemove.length === 0) return text.trim();
+
+  const escaped = wordsToRemove
+    .map(w => w.trim())
+    .filter(Boolean)
+    .map(escapeRegex);
+
+  if (escaped.length === 0) return text.trim();
+
+  const pattern = new RegExp(`\\b(${escaped.join('|')})\\b`, 'gi');
+
+  return text
+    .replace(pattern, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
 }

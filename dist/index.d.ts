@@ -125,6 +125,7 @@ declare const isColorName: (color: string) => boolean;
 declare const isColor: (color: string) => boolean;
 declare const hexToRgba: (hex: string, alpha?: number) => string;
 declare const removeDuplicates: <T>(array: T[]) => T[];
+declare const removeDuplicateWords: (text: string) => string;
 declare const getCancelToken: () => CancelTokenSource;
 declare const withCredentials: (include: boolean) => boolean;
 declare const withPost: <T>(uri: string, data: any, // 'dynamic' usually maps to 'any' or 'Record<string, any>'
@@ -154,5 +155,7 @@ declare const checkPasswordStrength: (password: string) => {
     result: string;
     suggestion: string[];
 };
+declare const escapeRegex: (str: string) => string;
+declare const removeWords: (text: string, wordsToRemove: string[]) => string;
 
-export { _ as "_", type EventListener, type FormatNumberParams, MD5, Events as PubSub, SORT, __SALT, arrayRand, camelCase, camelCaseToDash, checkPasswordStrength, clamp, copyToClipboard, type dynamic, enumToKeys, exists, formatNumber, formatSize, fromHash, getCancelToken, hexToRgba, isColor, isColorName, isHexColor, isHslColor, isRgbaColor, natsort, numberInRange, pluralize, removeDuplicates, sleep, slugify, type sortOptions, time, timeSince, toHash, ucfirst, urlBase64ToUint8Array, urldecode, urlencode, uuid, withCredentials, withGet, withPost, withTime };
+export { _ as "_", type EventListener, type FormatNumberParams, MD5, Events as PubSub, SORT, __SALT, arrayRand, camelCase, camelCaseToDash, checkPasswordStrength, clamp, copyToClipboard, type dynamic, enumToKeys, escapeRegex, exists, formatNumber, formatSize, fromHash, getCancelToken, hexToRgba, isColor, isColorName, isHexColor, isHslColor, isRgbaColor, natsort, numberInRange, pluralize, removeDuplicateWords, removeDuplicates, removeWords, sleep, slugify, type sortOptions, time, timeSince, toHash, ucfirst, urlBase64ToUint8Array, urldecode, urlencode, uuid, withCredentials, withGet, withPost, withTime };

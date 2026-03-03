@@ -459,6 +459,8 @@ export const slugify = (text: string, separator: string = "-") => {
 
 export const sleep = (ms: number) : Promise<any> => new Promise(resolve => setTimeout(resolve, ms));
 
+export const withDelay = (callback: (value: any) => void, delay?: number) => setTimeout(callback, delay || 1_000)
+
 export const enumToKeys = <T extends Record<string, any>>(obj: T): Array<keyof T> => Object.keys(obj)
     .filter( (key) => isNaN(Number(key)) ) as Array<keyof typeof obj>
 
@@ -548,4 +550,42 @@ export const removeWords = (text: string, wordsToRemove: string[]): string => {
     .replace(/\s+/g, ' ')
     .trim();
 
+}
+
+export const getCookie = (key: string, json: boolean = false) => {
+    const g = Cookies.get(key)
+    if ( g ){
+        return json ? JSON.parse(g) : g
+    }
+    return null
+}
+
+export const removeCookie = (key: string) => Cookies.remove(key)
+
+export const setCookie = ({ 
+    key, 
+    value, 
+    json = false,
+    path = `/`,
+    expires,
+    domain,
+    secure,
+    sameSite
+} : {
+    key: string;
+    value: string; 
+    json: boolean;
+    expires?: number | Date | undefined;
+    path?: string | undefined;
+    domain?: string | undefined;
+    secure?: boolean | undefined;
+    sameSite?: "strict" | "Strict" | "lax" | "Lax" | "none" | "None" | undefined;
+}) => {
+    Cookies.set(
+        key, 
+        json ? JSON.stringify(value) : value,
+        {
+            expires, path, domain, secure, sameSite
+        }
+    )
 }

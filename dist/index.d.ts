@@ -147,6 +147,7 @@ declare const camelCaseToDash: (str: string) => string;
 declare const clamp: (value: number, min: number, max: number) => number;
 declare const slugify: (text: string, separator?: string) => string;
 declare const sleep: (ms: number) => Promise<any>;
+declare const withDelay: (callback: (value: any) => void, delay?: number) => NodeJS.Timeout;
 declare const enumToKeys: <T extends Record<string, any>>(obj: T) => Array<keyof T>;
 declare const exists: (path: string) => Promise<boolean>;
 declare const urlBase64ToUint8Array: (base64String: string) => Uint8Array;
@@ -157,5 +158,17 @@ declare const checkPasswordStrength: (password: string) => {
 };
 declare const escapeRegex: (str: string) => string;
 declare const removeWords: (text: string, wordsToRemove: string[]) => string;
+declare const getCookie: (key: string, json?: boolean) => any;
+declare const removeCookie: (key: string) => void;
+declare const setCookie: ({ key, value, json, path, expires, domain, secure, sameSite }: {
+    key: string;
+    value: string;
+    json: boolean;
+    expires?: number | Date | undefined;
+    path?: string | undefined;
+    domain?: string | undefined;
+    secure?: boolean | undefined;
+    sameSite?: "strict" | "Strict" | "lax" | "Lax" | "none" | "None" | undefined;
+}) => void;
 
-export { _ as "_", type EventListener, type FormatNumberParams, MD5, Events as PubSub, SORT, __SALT, arrayRand, camelCase, camelCaseToDash, checkPasswordStrength, clamp, copyToClipboard, type dynamic, enumToKeys, escapeRegex, exists, formatNumber, formatSize, fromHash, getCancelToken, hexToRgba, isColor, isColorName, isHexColor, isHslColor, isRgbaColor, natsort, numberInRange, pluralize, removeDuplicateWords, removeDuplicates, removeWords, sleep, slugify, type sortOptions, time, timeSince, toHash, ucfirst, urlBase64ToUint8Array, urldecode, urlencode, uuid, withCredentials, withGet, withPost, withTime };
+export { _ as "_", type EventListener, type FormatNumberParams, MD5, Events as PubSub, SORT, __SALT, arrayRand, camelCase, camelCaseToDash, checkPasswordStrength, clamp, copyToClipboard, type dynamic, enumToKeys, escapeRegex, exists, formatNumber, formatSize, fromHash, getCancelToken, getCookie, hexToRgba, isColor, isColorName, isHexColor, isHslColor, isRgbaColor, natsort, numberInRange, pluralize, removeCookie, removeDuplicateWords, removeDuplicates, removeWords, setCookie, sleep, slugify, type sortOptions, time, timeSince, toHash, ucfirst, urlBase64ToUint8Array, urldecode, urlencode, uuid, withCredentials, withDelay, withGet, withPost, withTime };

@@ -4,9 +4,10 @@ import Hashids from "hashids";
 import Cookies from "js-cookie";
 import md5 from "md5";
 import moment from "moment";
+import { nanoid } from "nanoid";
 import { colorNames } from "./colors";
 import { hexColorRegex, hslColorRegex, rgbaColorRegex } from "./regexps";
-import { FormatNumberParams, SORT, sortOptions } from "./types";
+import { dynamic, FormatNumberParams, SORT, sortOptions } from "./types";
 import _ from "./withGlobals";
 
 export { default as PubSub } from "./events";
@@ -40,6 +41,8 @@ export const fromHash = ( str : string, SALT : string | null = null ) : number =
 export const MD5 = (str: string) => md5(str)
 
 export const uuid = (len: number) => toHash(numberInRange(11111111111, 999999999999))
+
+export const uuid2 = (len: number) => nanoid(len)
 
 export const ucfirst = (o: any) => `${o.charAt(0).toUpperCase()}${o.substring(1, o.length)}`
 
@@ -103,7 +106,7 @@ export const getCancelToken = () => axios.CancelToken.source();
 
 export const withCredentials = (include: boolean) => axios.defaults.withCredentials = include;
 
-export const withPost = async <T>(
+export const withPost = async <T = dynamic>(
     uri: string,
     data: any, // 'dynamic' usually maps to 'any' or 'Record<string, any>'
     timeout: number = 60,
@@ -171,7 +174,7 @@ export const withPost = async <T>(
     }
 };
 
-export const withGet = async <T>(
+export const withGet = async <T = dynamic>(
     uri: string, 
     timeout: number = 60, 
     ignoreKind = false,

@@ -114,6 +114,7 @@ declare const toHash: (n: number, len?: number, SALT?: string | null) => string;
 declare const fromHash: (str: string, SALT?: string | null) => number;
 declare const MD5: (str: string) => string;
 declare const uuid: (len: number) => string;
+declare const uuid2: (len: number) => string;
 declare const ucfirst: (o: any) => string;
 declare const urldecode: (str: string) => string;
 declare const urlencode: (str: string) => string;
@@ -128,9 +129,9 @@ declare const removeDuplicates: <T>(array: T[]) => T[];
 declare const removeDuplicateWords: (text: string) => string;
 declare const getCancelToken: () => CancelTokenSource;
 declare const withCredentials: (include: boolean) => boolean;
-declare const withPost: <T>(uri: string, data: any, // 'dynamic' usually maps to 'any' or 'Record<string, any>'
+declare const withPost: <T = dynamic>(uri: string, data: any, // 'dynamic' usually maps to 'any' or 'Record<string, any>'
 timeout?: number, ignoreKind?: boolean, headers?: AxiosRequestConfig["headers"], onProgress?: (ev: AxiosProgressEvent) => void) => Promise<T>;
-declare const withGet: <T>(uri: string, timeout?: number, ignoreKind?: boolean, headers?: AxiosRequestConfig["headers"]) => Promise<T>;
+declare const withGet: <T = dynamic>(uri: string, timeout?: number, ignoreKind?: boolean, headers?: AxiosRequestConfig["headers"]) => Promise<T>;
 declare const withTime: (fun: (...args: any[]) => any) => {
     result: any;
     executionTime: number;
@@ -171,4 +172,4 @@ declare const setCookie: ({ key, value, json, path, expires, domain, secure, sam
     sameSite?: "strict" | "Strict" | "lax" | "Lax" | "none" | "None" | undefined;
 }) => void;
 
-export { _ as "_", type EventListener, type FormatNumberParams, MD5, Events as PubSub, SORT, __SALT, arrayRand, camelCase, camelCaseToDash, checkPasswordStrength, clamp, copyToClipboard, type dynamic, enumToKeys, escapeRegex, exists, formatNumber, formatSize, fromHash, getCancelToken, getCookie, hexToRgba, isColor, isColorName, isHexColor, isHslColor, isRgbaColor, natsort, numberInRange, pluralize, removeCookie, removeDuplicateWords, removeDuplicates, removeWords, setCookie, sleep, slugify, type sortOptions, time, timeSince, toHash, ucfirst, urlBase64ToUint8Array, urldecode, urlencode, uuid, withCredentials, withDelay, withGet, withPost, withTime };
+export { _ as "_", type EventListener, type FormatNumberParams, MD5, Events as PubSub, SORT, __SALT, arrayRand, camelCase, camelCaseToDash, checkPasswordStrength, clamp, copyToClipboard, type dynamic, enumToKeys, escapeRegex, exists, formatNumber, formatSize, fromHash, getCancelToken, getCookie, hexToRgba, isColor, isColorName, isHexColor, isHslColor, isRgbaColor, natsort, numberInRange, pluralize, removeCookie, removeDuplicateWords, removeDuplicates, removeWords, setCookie, sleep, slugify, type sortOptions, time, timeSince, toHash, ucfirst, urlBase64ToUint8Array, urldecode, urlencode, uuid, uuid2, withCredentials, withDelay, withGet, withPost, withTime };

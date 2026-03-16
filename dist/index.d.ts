@@ -136,8 +136,8 @@ declare const withTime: (fun: (...args: any[]) => any) => {
     result: any;
     executionTime: number;
 };
-declare const time: (stamp?: number, format?: string) => string;
-declare const timeSince: (stamp: number) => string;
+declare const time: (stamp?: number | Date | string, format?: string) => string;
+declare const timeSince: (stamp: number | Date | string) => string;
 declare const arrayRand: (arr: any[]) => any;
 declare const formatNumber: ({ number, locale, style, decimal, forceDecimal, currency }: FormatNumberParams) => string;
 declare const formatSize: (bytes: number | string) => string;

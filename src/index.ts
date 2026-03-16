@@ -217,13 +217,54 @@ export const withTime = ( fun : (...args: any[]) => any ) => {
     }
 }
 
-export const time = (stamp?: number, format?: string) => {
-    return stamp ? 
-        moment.unix(+stamp / 1000).format(format || `YYYY-MM-DD HH:mm:ss`)
-        : moment().format(format || `YYYY-MM-DD HH:mm:ss`)
-}
+export const time = (stamp?: number | Date | string, format?: string) => {
 
-export const timeSince = (stamp: number) => moment(stamp).fromNow()
+    const defaultFormat = format || `YYYY-MM-DD HH:mm:ss`;
+
+    if (!stamp) {
+        return moment().format(defaultFormat);
+    }
+
+    // 1. Handle Date objects
+    if (stamp instanceof Date) {
+        return moment(stamp).format(defaultFormat);
+    }
+
+    // 2. Handle ISO Strings (e.g., "2026-03-16T..." or "2026-03-16")
+    if (typeof stamp === 'string' && isNaN(Number(stamp))) {
+        return moment(stamp).format(defaultFormat);
+    }
+
+    // 3. Handle Numbers or Stringified Numbers (Timestamps)
+    // We check if it's likely milliseconds (13 digits) or seconds (10 digits)
+    const numericStamp = Number(stamp);
+    const isMilliseconds = numericStamp > 9999999999; 
+    
+    return isMilliseconds 
+        ? moment(numericStamp).format(defaultFormat) 
+        : moment.unix(numericStamp).format(defaultFormat);
+};
+
+export const timeSince = (stamp: number | Date | string) => {
+    
+    // 1. Handle Date objects
+    if (stamp instanceof Date) {
+        return moment(stamp).fromNow();
+    }
+
+    // 2. Handle ISO Strings or non-numeric strings
+    if (typeof stamp === 'string' && isNaN(Number(stamp))) {
+        return moment(stamp).fromNow();
+    }
+
+    // 3. Handle Numbers (Timestamps)
+    const numericStamp = Number(stamp);
+    const isMilliseconds = numericStamp > 9999999999;
+
+    return isMilliseconds 
+        ? moment(numericStamp).fromNow() 
+        : moment.unix(numericStamp).fromNow();
+};
 
 export const arrayRand = (arr: any[]) => arr[Math.floor(Math.random() * arr.length)]
 

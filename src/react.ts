@@ -51,9 +51,11 @@ export const addPropsToChildren = (
             const newChild = conditions(element) 
                 ? cloneElement(element, getProps(i++, element))
                 : element
-            if ( element.props.children ){
+        const elementChildren = element.props.children as ReactNode
+        const shouldRecurse = isValidElement(elementChildren) || Array.isArray(elementChildren)
+        if ( shouldRecurse ){
                 return cloneElement(newChild, {
-                    children: addPropsToChildren(element.props.children, conditions, getProps)
+            children: addPropsToChildren(elementChildren, conditions, getProps)
                 })
             }
             return newChild

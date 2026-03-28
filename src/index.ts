@@ -1,4 +1,4 @@
-import axios, { AxiosProgressEvent, AxiosRequestConfig, CancelTokenSource } from "axios";
+import axios, { AxiosProgressEvent, AxiosRequestConfig, AxiosResponse, CancelTokenSource } from "axios";
 import fs from "fs/promises";
 import Hashids from "hashids";
 import Cookies from "js-cookie";
@@ -7,7 +7,7 @@ import moment from "moment";
 import { nanoid } from "nanoid";
 import { colorNames } from "./colors";
 import { hexColorRegex, hslColorRegex, rgbaColorRegex } from "./regexps";
-import { dynamic, FormatNumberParams, SORT, sortOptions } from "./types";
+import { dynamic, FormatNumberParams, SORT, sortOptions, WithHttpOptions } from "./types";
 import _ from "./withGlobals";
 
 export { default as PubSub } from "./events";
@@ -106,106 +106,197 @@ export const getCancelToken = () => axios.CancelToken.source();
 
 export const withCredentials = (include: boolean) => axios.defaults.withCredentials = include;
 
-export const withPost = async <T = dynamic>(
-    uri: string,
-    data: any, // 'dynamic' usually maps to 'any' or 'Record<string, any>'
-    timeout: number = 60,
+
+const buildNetworkError = (err: any) => {
+    const hasNavigator = typeof navigator !== 'undefined';
+    const online = hasNavigator ? navigator.onLine : true;
+    return {
+        error: err?.code ?? 'ERR_NETWORK',
+        message: online
+            ? `Unable to connect to the server. It may be temporarily down.`
+            : `Network error: Unable to connect. Please check your internet connection and try again.`,
+    };
+};
+
+const normalizeHttpOptions = (
+    timeoutOrOptions: number | WithHttpOptions = 60,
     ignoreKind = false,
     headers: AxiosRequestConfig['headers'] = {},
-    onProgress?: (ev: AxiosProgressEvent) => void
-): Promise<T> => {
-    
-    const _cookies = Cookies.get();
+    onProgress?: (ev: AxiosProgressEvent) => void,
+): Required<Pick<WithHttpOptions, 'timeout' | 'ignoreKind' | 'appendCookiesToBody' | 'appendTimestamp'>> & WithHttpOptions => {
+    if (typeof timeoutOrOptions === 'object' && timeoutOrOptions !== null) {
+        return {
+            timeout: timeoutOrOptions.timeout ?? 60,
+            ignoreKind: timeoutOrOptions.ignoreKind ?? false,
+            headers: timeoutOrOptions.headers ?? {},
+            onProgress: timeoutOrOptions.onProgress,
+            withCredentials: timeoutOrOptions.withCredentials,
+            returnRawResponse: timeoutOrOptions.returnRawResponse,
+            appendCookiesToBody: timeoutOrOptions.appendCookiesToBody ?? true,
+            appendTimestamp: timeoutOrOptions.appendTimestamp ?? true,
+        };
+    }
+
+    return {
+        timeout: timeoutOrOptions,
+        ignoreKind,
+        headers,
+        onProgress,
+        appendCookiesToBody: true,
+        appendTimestamp: true,
+    };
+};
+
+const normalizePostBody = (data: any, options: ReturnType<typeof normalizeHttpOptions>) => {
+    const cookies = Cookies.get();
     let finalData = data;
     let contentType = 'application/json';
 
-    // 1. Data Preparation Logic
     if (data instanceof FormData) {
         contentType = 'multipart/form-data';
-        for (const [key, value] of Object.entries(_cookies)) {
-            data.append(key, value);
+        if (options.appendCookiesToBody) {
+            for (const [key, value] of Object.entries(cookies)) {
+                data.append(key, value);
+            }
         }
-    } else if (typeof data === "object" && !Array.isArray(data) && data !== null) {
-        // Handle standard objects: inject cookies and timestamp
+    } else if (typeof data === 'object' && !Array.isArray(data) && data !== null) {
         finalData = {
             ...data,
-            ..._cookies,
-            __stmp: Date.now() / 1000
+            ...(options.appendCookiesToBody ? cookies : {}),
+            ...(options.appendTimestamp ? { __stmp: Date.now() / 1000 } : {}),
         };
-    } else if ( !_(data).isString() ) {
-        // If it's not FormData, an Object, or a String, reject immediately
-        throw new Error("Unsupported data type for withPost");
+    } else if (!_(data).isString()) {
+        throw new Error('Unsupported data type for withPost/withPut/withPatch');
     }
 
-    // 2. Single Axios Execution
-    try {
-        const resp = await axios({
-            method: 'post',
-            url: uri,
-            data: finalData,
-            timeout: timeout * 1000,
-            headers: {
-                'Content-Type': contentType,
-                ...headers
-            },
-            onUploadProgress: onProgress
-        });
+    return {
+        finalData,
+        contentType,
+    };
+};
 
-        // 3. Response Validation
-        if (resp.data && (ignoreKind || "kind" in resp.data)) {
-            return resp.data as T;
-        } else {
-            throw resp.data;
-        }
+const finalizeHttpResponse = <T = dynamic>(
+    resp: AxiosResponse,
+    options: ReturnType<typeof normalizeHttpOptions>,
+): T | AxiosResponse<T> => {
+    if (options.returnRawResponse) {
+        return resp as AxiosResponse<T>;
+    }
+
+    if (resp.data && (options.ignoreKind || 'kind' in resp.data)) {
+        return resp.data as T;
+    }
+
+    throw resp.data;
+};
+
+const executeHttp = async <T = dynamic>(request: AxiosRequestConfig, options: ReturnType<typeof normalizeHttpOptions>): Promise<T | AxiosResponse<T>> => {
+    try {
+        const resp = await axios(request);
+        return finalizeHttpResponse<T>(resp, options);
     } catch (err: any) {
-        // 4. Centralized Error Handling
         if (err?.response?.data) {
             throw err.response.data;
         }
 
-        throw err.code === `ERR_NETWORK`
-            ? {
-                  error: err.code,
-                  message: navigator.onLine
-                      ? `Unable to connect to the server. It may be temporarily down.`
-                      : `Network error: Unable to connect. Please check your internet connection and try again.`,
-              }
-            : err;
+        if (err?.code === 'ERR_NETWORK') {
+            throw buildNetworkError(err);
+        }
+
+        throw err;
     }
 };
 
-export const withGet = async <T = dynamic>(
-    uri: string, 
-    timeout: number = 60, 
+export const withPost = async <T = dynamic>(
+    uri: string,
+    data: any,
+    timeoutOrOptions: number | WithHttpOptions = 60,
     ignoreKind = false,
     headers: AxiosRequestConfig['headers'] = {},
-): Promise<T> => {
-    try {
-        const resp = await axios.get(uri, { 
-            timeout: timeout * 1000,
-            headers: headers
-        });
+    onProgress?: (ev: AxiosProgressEvent) => void,
+): Promise<T | AxiosResponse<T>> => {
+    const options = normalizeHttpOptions(timeoutOrOptions, ignoreKind, headers, onProgress);
+    const { finalData, contentType } = normalizePostBody(data, options);
 
-        if (resp.data && (ignoreKind || "kind" in resp.data)) {
-            return resp.data as T;
-        } else {
-            throw resp.data;
-        }
-    } catch (err: any) {
-        if (err?.response?.data) {
-            throw err.response.data;
-        }
+    return executeHttp<T>({
+        method: 'post',
+        url: uri,
+        data: finalData,
+        timeout: options.timeout * 1000,
+        withCredentials: options.withCredentials,
+        headers: {
+            'Content-Type': contentType,
+            ...(options.headers ?? {}),
+        },
+        onUploadProgress: options.onProgress,
+    }, options) as Promise<T | AxiosResponse<T>>;
+};
 
-        throw err.code === `ERR_NETWORK`
-            ? {
-                  error: err.code,
-                  message: navigator.onLine
-                      ? `Unable to connect to the server. It may be temporarily down.`
-                      : `Network error: Unable to connect. Please check your internet connection and try again.`,
-              }
-            : err;
-    }
-}
+export const withGet = async <T = dynamic>(
+    uri: string,
+    timeoutOrOptions: number | WithHttpOptions = 60,
+    ignoreKind = false,
+    headers: AxiosRequestConfig['headers'] = {},
+): Promise<T | AxiosResponse<T>> => {
+    const options = normalizeHttpOptions(timeoutOrOptions, ignoreKind, headers);
+    return executeHttp<T>({
+        method: 'get',
+        url: uri,
+        timeout: options.timeout * 1000,
+        withCredentials: options.withCredentials,
+        headers: options.headers,
+    }, options) as Promise<T | AxiosResponse<T>>;
+};
+
+export const withPut = async <T = dynamic>(
+    uri: string,
+    data: any,
+    timeoutOrOptions: number | WithHttpOptions = 60,
+    ignoreKind = false,
+    headers: AxiosRequestConfig['headers'] = {},
+    onProgress?: (ev: AxiosProgressEvent) => void,
+): Promise<T | AxiosResponse<T>> => {
+    const options = normalizeHttpOptions(timeoutOrOptions, ignoreKind, headers, onProgress);
+    const { finalData, contentType } = normalizePostBody(data, options);
+
+    return executeHttp<T>({
+        method: 'put',
+        url: uri,
+        data: finalData,
+        timeout: options.timeout * 1000,
+        withCredentials: options.withCredentials,
+        headers: {
+            'Content-Type': contentType,
+            ...(options.headers ?? {}),
+        },
+        onUploadProgress: options.onProgress,
+    }, options) as Promise<T | AxiosResponse<T>>;
+};
+
+export const withPatch = async <T = dynamic>(
+    uri: string,
+    data: any,
+    timeoutOrOptions: number | WithHttpOptions = 60,
+    ignoreKind = false,
+    headers: AxiosRequestConfig['headers'] = {},
+    onProgress?: (ev: AxiosProgressEvent) => void,
+): Promise<T | AxiosResponse<T>> => {
+    const options = normalizeHttpOptions(timeoutOrOptions, ignoreKind, headers, onProgress);
+    const { finalData, contentType } = normalizePostBody(data, options);
+
+    return executeHttp<T>({
+        method: 'patch',
+        url: uri,
+        data: finalData,
+        timeout: options.timeout * 1000,
+        withCredentials: options.withCredentials,
+        headers: {
+            'Content-Type': contentType,
+            ...(options.headers ?? {}),
+        },
+        onUploadProgress: options.onProgress,
+    }, options) as Promise<T | AxiosResponse<T>>;
+};
 
 export const withTime = ( fun : (...args: any[]) => any ) => {
     const start = new Date().getTime()

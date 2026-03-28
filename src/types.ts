@@ -1,3 +1,5 @@
+import { AxiosProgressEvent, AxiosRequestConfig } from "axios"
+
 export type dynamic = { 
     [x: string] : any 
 }
@@ -30,3 +32,14 @@ export interface EventListener {
     context?: any;
     id: symbol; // Unique ID for each listener
 }
+
+export type WithHttpOptions = {
+    timeout?: number;
+    ignoreKind?: boolean;
+    headers?: AxiosRequestConfig['headers'];
+    onProgress?: (ev: AxiosProgressEvent) => void;
+    withCredentials?: boolean;
+    returnRawResponse?: boolean;
+    appendCookiesToBody?: boolean;
+    appendTimestamp?: boolean;
+};

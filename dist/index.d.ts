@@ -1,4 +1,4 @@
-import { CancelTokenSource, AxiosRequestConfig, AxiosProgressEvent } from 'axios';
+import { AxiosRequestConfig, AxiosProgressEvent, CancelTokenSource, AxiosResponse } from 'axios';
 export { CancelTokenSource, AxiosProgressEvent as UploadProgressEvent } from 'axios';
 
 type dynamic = {
@@ -29,6 +29,16 @@ interface EventListener {
     context?: any;
     id: symbol;
 }
+type WithHttpOptions = {
+    timeout?: number;
+    ignoreKind?: boolean;
+    headers?: AxiosRequestConfig['headers'];
+    onProgress?: (ev: AxiosProgressEvent) => void;
+    withCredentials?: boolean;
+    returnRawResponse?: boolean;
+    appendCookiesToBody?: boolean;
+    appendTimestamp?: boolean;
+};
 
 interface Event {
     event: String | Symbol;
@@ -129,9 +139,10 @@ declare const removeDuplicates: <T>(array: T[]) => T[];
 declare const removeDuplicateWords: (text: string) => string;
 declare const getCancelToken: () => CancelTokenSource;
 declare const withCredentials: (include: boolean) => boolean;
-declare const withPost: <T = dynamic>(uri: string, data: any, // 'dynamic' usually maps to 'any' or 'Record<string, any>'
-timeout?: number, ignoreKind?: boolean, headers?: AxiosRequestConfig["headers"], onProgress?: (ev: AxiosProgressEvent) => void) => Promise<T>;
-declare const withGet: <T = dynamic>(uri: string, timeout?: number, ignoreKind?: boolean, headers?: AxiosRequestConfig["headers"]) => Promise<T>;
+declare const withPost: <T = dynamic>(uri: string, data: any, timeoutOrOptions?: number | WithHttpOptions, ignoreKind?: boolean, headers?: AxiosRequestConfig["headers"], onProgress?: (ev: AxiosProgressEvent) => void) => Promise<T | AxiosResponse<T>>;
+declare const withGet: <T = dynamic>(uri: string, timeoutOrOptions?: number | WithHttpOptions, ignoreKind?: boolean, headers?: AxiosRequestConfig["headers"]) => Promise<T | AxiosResponse<T>>;
+declare const withPut: <T = dynamic>(uri: string, data: any, timeoutOrOptions?: number | WithHttpOptions, ignoreKind?: boolean, headers?: AxiosRequestConfig["headers"], onProgress?: (ev: AxiosProgressEvent) => void) => Promise<T | AxiosResponse<T>>;
+declare const withPatch: <T = dynamic>(uri: string, data: any, timeoutOrOptions?: number | WithHttpOptions, ignoreKind?: boolean, headers?: AxiosRequestConfig["headers"], onProgress?: (ev: AxiosProgressEvent) => void) => Promise<T | AxiosResponse<T>>;
 declare const withTime: (fun: (...args: any[]) => any) => {
     result: any;
     executionTime: number;
@@ -172,4 +183,4 @@ declare const setCookie: ({ key, value, json, path, expires, domain, secure, sam
     sameSite?: "strict" | "Strict" | "lax" | "Lax" | "none" | "None" | undefined;
 }) => void;
 
-export { _ as "_", type EventListener, type FormatNumberParams, MD5, Events as PubSub, SORT, __SALT, arrayRand, camelCase, camelCaseToDash, checkPasswordStrength, clamp, copyToClipboard, type dynamic, enumToKeys, escapeRegex, exists, formatNumber, formatSize, fromHash, getCancelToken, getCookie, hexToRgba, isColor, isColorName, isHexColor, isHslColor, isRgbaColor, natsort, numberInRange, pluralize, removeCookie, removeDuplicateWords, removeDuplicates, removeWords, setCookie, sleep, slugify, type sortOptions, time, timeSince, toHash, ucfirst, urlBase64ToUint8Array, urldecode, urlencode, uuid, uuid2, withCredentials, withDelay, withGet, withPost, withTime };
+export { _ as "_", type EventListener, type FormatNumberParams, MD5, Events as PubSub, SORT, type WithHttpOptions, __SALT, arrayRand, camelCase, camelCaseToDash, checkPasswordStrength, clamp, copyToClipboard, type dynamic, enumToKeys, escapeRegex, exists, formatNumber, formatSize, fromHash, getCancelToken, getCookie, hexToRgba, isColor, isColorName, isHexColor, isHslColor, isRgbaColor, natsort, numberInRange, pluralize, removeCookie, removeDuplicateWords, removeDuplicates, removeWords, setCookie, sleep, slugify, type sortOptions, time, timeSince, toHash, ucfirst, urlBase64ToUint8Array, urldecode, urlencode, uuid, uuid2, withCredentials, withDelay, withGet, withPatch, withPost, withPut, withTime };

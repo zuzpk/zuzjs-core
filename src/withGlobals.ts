@@ -56,7 +56,7 @@ class withGlobals {
 
     isEmail(){ 
         // return typeof this._ === "string" && /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(this._)
-        return typeof this._ === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(this._)
+        return typeof this._ === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(decodeURIComponent(this._))
     }
 
     isUrl(){

@@ -139,10 +139,20 @@ declare const removeDuplicates: <T>(array: T[]) => T[];
 declare const removeDuplicateWords: (text: string) => string;
 declare const getCancelToken: () => CancelTokenSource;
 declare const withCredentials: (include: boolean) => boolean;
-declare const withPost: <T = dynamic>(uri: string, data: any, timeoutOrOptions?: number | WithHttpOptions, ignoreKind?: boolean, headers?: AxiosRequestConfig["headers"], onProgress?: (ev: AxiosProgressEvent) => void) => Promise<T | AxiosResponse<T>>;
-declare const withGet: <T = dynamic>(uri: string, timeoutOrOptions?: number | WithHttpOptions, ignoreKind?: boolean, headers?: AxiosRequestConfig["headers"]) => Promise<T | AxiosResponse<T>>;
-declare const withPut: <T = dynamic>(uri: string, data: any, timeoutOrOptions?: number | WithHttpOptions, ignoreKind?: boolean, headers?: AxiosRequestConfig["headers"], onProgress?: (ev: AxiosProgressEvent) => void) => Promise<T | AxiosResponse<T>>;
-declare const withPatch: <T = dynamic>(uri: string, data: any, timeoutOrOptions?: number | WithHttpOptions, ignoreKind?: boolean, headers?: AxiosRequestConfig["headers"], onProgress?: (ev: AxiosProgressEvent) => void) => Promise<T | AxiosResponse<T>>;
+type WithRawResponseOptions = WithHttpOptions & {
+    returnRawResponse: true;
+};
+type WithParsedResponseOptions = WithHttpOptions & {
+    returnRawResponse?: false | undefined;
+};
+declare function withPost<T = dynamic>(uri: string, data: any, timeoutOrOptions: WithRawResponseOptions): Promise<AxiosResponse<T>>;
+declare function withPost<T = dynamic>(uri: string, data: any, timeoutOrOptions?: number | WithParsedResponseOptions, ignoreKind?: boolean, headers?: AxiosRequestConfig['headers'], onProgress?: (ev: AxiosProgressEvent) => void): Promise<T>;
+declare function withGet<T = dynamic>(uri: string, timeoutOrOptions: WithRawResponseOptions): Promise<AxiosResponse<T>>;
+declare function withGet<T = dynamic>(uri: string, timeoutOrOptions?: number | WithParsedResponseOptions, ignoreKind?: boolean, headers?: AxiosRequestConfig['headers']): Promise<T>;
+declare function withPut<T = dynamic>(uri: string, data: any, timeoutOrOptions: WithRawResponseOptions): Promise<AxiosResponse<T>>;
+declare function withPut<T = dynamic>(uri: string, data: any, timeoutOrOptions?: number | WithParsedResponseOptions, ignoreKind?: boolean, headers?: AxiosRequestConfig['headers'], onProgress?: (ev: AxiosProgressEvent) => void): Promise<T>;
+declare function withPatch<T = dynamic>(uri: string, data: any, timeoutOrOptions: WithRawResponseOptions): Promise<AxiosResponse<T>>;
+declare function withPatch<T = dynamic>(uri: string, data: any, timeoutOrOptions?: number | WithParsedResponseOptions, ignoreKind?: boolean, headers?: AxiosRequestConfig['headers'], onProgress?: (ev: AxiosProgressEvent) => void): Promise<T>;
 declare const withTime: (fun: (...args: any[]) => any) => {
     result: any;
     executionTime: number;
@@ -174,7 +184,7 @@ declare const getCookie: (key: string, json?: boolean) => any;
 declare const removeCookie: (key: string) => void;
 declare const setCookie: ({ key, value, json, path, expires, domain, secure, sameSite }: {
     key: string;
-    value: string;
+    value: string | object;
     json: boolean;
     expires?: number | Date | undefined;
     path?: string | undefined;

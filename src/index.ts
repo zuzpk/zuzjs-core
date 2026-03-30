@@ -118,6 +118,14 @@ const buildNetworkError = (err: any) => {
     };
 };
 
+type WithRawResponseOptions = WithHttpOptions & {
+    returnRawResponse: true;
+};
+
+type WithParsedResponseOptions = WithHttpOptions & {
+    returnRawResponse?: false | undefined;
+};
+
 const normalizeHttpOptions = (
     timeoutOrOptions: number | WithHttpOptions = 60,
     ignoreKind = false,
@@ -207,14 +215,27 @@ const executeHttp = async <T = dynamic>(request: AxiosRequestConfig, options: Re
     }
 };
 
-export const withPost = async <T = dynamic>(
+export function withPost<T = dynamic>(
+    uri: string,
+    data: any,
+    timeoutOrOptions: WithRawResponseOptions,
+): Promise<AxiosResponse<T>>;
+export function withPost<T = dynamic>(
+    uri: string,
+    data: any,
+    timeoutOrOptions?: number | WithParsedResponseOptions,
+    ignoreKind?: boolean,
+    headers?: AxiosRequestConfig['headers'],
+    onProgress?: (ev: AxiosProgressEvent) => void,
+): Promise<T>;
+export async function withPost<T = dynamic>(
     uri: string,
     data: any,
     timeoutOrOptions: number | WithHttpOptions = 60,
     ignoreKind = false,
     headers: AxiosRequestConfig['headers'] = {},
     onProgress?: (ev: AxiosProgressEvent) => void,
-): Promise<T | AxiosResponse<T>> => {
+): Promise<T | AxiosResponse<T>> {
     const options = normalizeHttpOptions(timeoutOrOptions, ignoreKind, headers, onProgress);
     const { finalData, contentType } = normalizePostBody(data, options);
 
@@ -229,15 +250,25 @@ export const withPost = async <T = dynamic>(
             ...(options.headers ?? {}),
         },
         onUploadProgress: options.onProgress,
-    }, options) as Promise<T | AxiosResponse<T>>;
-};
+    }, options);
+}
 
-export const withGet = async <T = dynamic>(
+export function withGet<T = dynamic>(
+    uri: string,
+    timeoutOrOptions: WithRawResponseOptions,
+): Promise<AxiosResponse<T>>;
+export function withGet<T = dynamic>(
+    uri: string,
+    timeoutOrOptions?: number | WithParsedResponseOptions,
+    ignoreKind?: boolean,
+    headers?: AxiosRequestConfig['headers'],
+): Promise<T>;
+export async function withGet<T = dynamic>(
     uri: string,
     timeoutOrOptions: number | WithHttpOptions = 60,
     ignoreKind = false,
     headers: AxiosRequestConfig['headers'] = {},
-): Promise<T | AxiosResponse<T>> => {
+): Promise<T | AxiosResponse<T>> {
     const options = normalizeHttpOptions(timeoutOrOptions, ignoreKind, headers);
     return executeHttp<T>({
         method: 'get',
@@ -245,17 +276,30 @@ export const withGet = async <T = dynamic>(
         timeout: options.timeout * 1000,
         withCredentials: options.withCredentials,
         headers: options.headers,
-    }, options) as Promise<T | AxiosResponse<T>>;
-};
+    }, options);
+}
 
-export const withPut = async <T = dynamic>(
+export function withPut<T = dynamic>(
+    uri: string,
+    data: any,
+    timeoutOrOptions: WithRawResponseOptions,
+): Promise<AxiosResponse<T>>;
+export function withPut<T = dynamic>(
+    uri: string,
+    data: any,
+    timeoutOrOptions?: number | WithParsedResponseOptions,
+    ignoreKind?: boolean,
+    headers?: AxiosRequestConfig['headers'],
+    onProgress?: (ev: AxiosProgressEvent) => void,
+): Promise<T>;
+export async function withPut<T = dynamic>(
     uri: string,
     data: any,
     timeoutOrOptions: number | WithHttpOptions = 60,
     ignoreKind = false,
     headers: AxiosRequestConfig['headers'] = {},
     onProgress?: (ev: AxiosProgressEvent) => void,
-): Promise<T | AxiosResponse<T>> => {
+): Promise<T | AxiosResponse<T>> {
     const options = normalizeHttpOptions(timeoutOrOptions, ignoreKind, headers, onProgress);
     const { finalData, contentType } = normalizePostBody(data, options);
 
@@ -270,17 +314,30 @@ export const withPut = async <T = dynamic>(
             ...(options.headers ?? {}),
         },
         onUploadProgress: options.onProgress,
-    }, options) as Promise<T | AxiosResponse<T>>;
-};
+    }, options);
+}
 
-export const withPatch = async <T = dynamic>(
+export function withPatch<T = dynamic>(
+    uri: string,
+    data: any,
+    timeoutOrOptions: WithRawResponseOptions,
+): Promise<AxiosResponse<T>>;
+export function withPatch<T = dynamic>(
+    uri: string,
+    data: any,
+    timeoutOrOptions?: number | WithParsedResponseOptions,
+    ignoreKind?: boolean,
+    headers?: AxiosRequestConfig['headers'],
+    onProgress?: (ev: AxiosProgressEvent) => void,
+): Promise<T>;
+export async function withPatch<T = dynamic>(
     uri: string,
     data: any,
     timeoutOrOptions: number | WithHttpOptions = 60,
     ignoreKind = false,
     headers: AxiosRequestConfig['headers'] = {},
     onProgress?: (ev: AxiosProgressEvent) => void,
-): Promise<T | AxiosResponse<T>> => {
+): Promise<T | AxiosResponse<T>> {
     const options = normalizeHttpOptions(timeoutOrOptions, ignoreKind, headers, onProgress);
     const { finalData, contentType } = normalizePostBody(data, options);
 
@@ -295,8 +352,8 @@ export const withPatch = async <T = dynamic>(
             ...(options.headers ?? {}),
         },
         onUploadProgress: options.onProgress,
-    }, options) as Promise<T | AxiosResponse<T>>;
-};
+    }, options);
+}
 
 export const withTime = ( fun : (...args: any[]) => any ) => {
     const start = new Date().getTime()
@@ -708,7 +765,7 @@ export const setCookie = ({
     sameSite
 } : {
     key: string;
-    value: string; 
+    value: string | object; 
     json: boolean;
     expires?: number | Date | undefined;
     path?: string | undefined;
@@ -716,11 +773,15 @@ export const setCookie = ({
     secure?: boolean | undefined;
     sameSite?: "strict" | "Strict" | "lax" | "Lax" | "none" | "None" | undefined;
 }) => {
+    try{
     Cookies.set(
         key, 
-        json ? JSON.stringify(value) : value,
+        json || typeof value === 'object' ? JSON.stringify(value) : value,
         {
             expires, path, domain, secure, sameSite
         }
     )
+}    catch(e){
+    console.log(`--- Error setting cookie`, e)
+}
 }

@@ -172,8 +172,8 @@ declare const sleep: (ms: number) => Promise<any>;
 declare const withDelay: (callback: (value: any) => void, delay?: number) => NodeJS.Timeout;
 declare const enumToKeys: <T extends Record<string, any>>(obj: T) => Array<keyof T>;
 declare const exists: (path: string) => Promise<boolean>;
-declare const urlBase64ToUint8Array: (base64String: string) => Uint8Array;
-declare const checkPasswordStrength: (password: string) => {
+declare const urlBase64ToUint8Array: (base64String: string | null | undefined) => Uint8Array;
+declare const checkPasswordStrength: (password: string | null | undefined) => {
     score: number;
     result: string;
     suggestion: string[];

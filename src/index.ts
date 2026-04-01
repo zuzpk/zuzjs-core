@@ -665,9 +665,15 @@ export const exists = async (path: string) => {
     }
 };
 
-export const urlBase64ToUint8Array = (base64String: string): Uint8Array => {
-  const padding = '='.repeat((4 - base64String.length % 4) % 4);
-  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+export const urlBase64ToUint8Array = (base64String: string | null | undefined): Uint8Array => {
+    const normalizedBase64String = (base64String ?? '').trim();
+
+    if (normalizedBase64String.length === 0) {
+        return new Uint8Array(0);
+    }
+
+    const padding = '='.repeat((4 - normalizedBase64String.length % 4) % 4);
+    const base64 = (normalizedBase64String + padding).replace(/-/g, '+').replace(/_/g, '/');
   const rawData = window.atob(base64);
   const outputArray = new Uint8Array(rawData.length);
   for (let i = 0; i < rawData.length; ++i) {
@@ -676,39 +682,41 @@ export const urlBase64ToUint8Array = (base64String: string): Uint8Array => {
   return outputArray;
 }
 
-export const checkPasswordStrength = (password: string): {
+export const checkPasswordStrength = (password: string | null | undefined): {
     score: number;
     result: string,
     suggestion: string[];
 } => {
+    
+    const normalizedPassword = password ?? "";
     const suggestions: string[] = [];
     let score = 0;
   
-    if (password.length >= 8) {
+    if (normalizedPassword.length >= 8) {
       score++;
     } else {
       suggestions.push("Use at least 8 characters");
     }
   
-    if (/[a-z]/.test(password)) {
+        if (/[a-z]/.test(normalizedPassword)) {
       score++;
     } else {
       suggestions.push("Add lowercase letters");
     }
   
-    if (/[A-Z]/.test(password)) {
+        if (/[A-Z]/.test(normalizedPassword)) {
       score++;
     } else {
       suggestions.push("Add uppercase letters");
     }
   
-    if (/\d/.test(password)) {
+        if (/\d/.test(normalizedPassword)) {
       score++;
     } else {
       suggestions.push("Include numbers");
     }
   
-    if (/[^A-Za-z0-9]/.test(password)) {
+        if (/[^A-Za-z0-9]/.test(normalizedPassword)) {
       score++;
     } else {
       suggestions.push("Add special characters (e.g. !, @, #)");

@@ -103,6 +103,120 @@ export const generateColorHex = (): string => {
     return `#${colorInt.toString(16).padStart(6, '0')}`;
 };
 
+/**
+ * Converts Hex to HSL with flexible output formats.
+ * @param hex - The color string (e.g., "#ff0000" or "ff0000")
+ * @param format - 'object' (default) or 'string' for CSS hsl()
+ */
+export type HSLObject = { h: number; s: number; l: number };
+export function hexToHsl(hex: string, format: 'object'): HSLObject;
+export function hexToHsl(hex: string, format: 'string'): string;
+export function hexToHsl(hex: string, format: 'object' | 'string' = 'string'): HSLObject | string {
+    // 1. Clean Hex
+    hex = hex.replace(/^#/, "");
+    if (hex.length === 3) {
+        hex = hex.split('').map(char => char + char).join('');
+    }
+
+    // 2. RGB mapping
+    const r = parseInt(hex.substring(0, 2), 16) / 255;
+    const g = parseInt(hex.substring(2, 4), 16) / 255;
+    const b = parseInt(hex.substring(4, 6), 16) / 255;
+
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h = 0, s = 0, l = (max + min) / 2;
+
+    if (max !== min) {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        
+        switch (max) {
+            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+            case g: h = (b - r) / d + 2; break;
+            case b: h = (r - g) / d + 4; break;
+        }
+        h /= 6;
+    }
+
+    const res = {
+        h: Math.round(h * 360),
+        s: Math.round(s * 100),
+        l: Math.round(l * 100)
+    };
+
+    // 3. Conditional Return
+    return format === 'string' 
+        ? `hsl(${res.h}, ${res.s}%, ${res.l}%)` 
+        : res;
+}
+
+/**
+ * Returns either #FFFFFF or a dark neutral #1A1A1A 
+ * based on the background color's brightness.
+ */
+export const getContrastColor = (hex: string): string => {
+    // Clean hex
+    const color = hex.replace(/^#/, "");
+    
+    // Convert to RGB
+    const r = parseInt(color.substring(0, 2), 16);
+    const g = parseInt(color.substring(2, 4), 16);
+    const b = parseInt(color.substring(4, 6), 16);
+
+    // YIQ equation (Standard for perceived brightness)
+    // Weighting: Green is brightest to the eye, Blue is darkest
+    const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+
+    // 128 is the midpoint. 
+    // If yiq > 128, the color is "light", so return dark text.
+    return yiq >= 128 ? "#1a1a1a" : "#ffffff";
+};
+
+/**
+ * Generates a functional UI palette based on a single seed color.
+ * Uses HSL manipulation to ensure visual harmony.
+ */
+export const generatePalette = (seedHex: string) => {
+    const hsl = hexToHsl(seedHex, 'object');
+    const isDark = getContrastColor(seedHex) === "#ffffff";
+
+    // Helper to create HSL string with offsets
+    const shift = (hOff = 0, sOff = 0, lOff = 0, a = 1) => {
+        const h = (hsl.h + hOff + 360) % 360;
+        const s = Math.min(100, Math.max(0, hsl.s + sOff));
+        const l = Math.min(100, Math.max(0, hsl.l + lOff));
+        return a === 1 ? `hsl(${h}, ${s}%, ${l}%)` : `hsla(${h}, ${s}%, ${l}%, ${a})`;
+    };
+
+    return {
+        // 1. Core Brand / Action
+        primary: seedHex,
+        onPrimary: getContrastColor(seedHex),
+
+        // 2. Background & Surface
+        // If seed is dark, background is a deeper version. If light, background is very pale.
+        background: isDark ? shift(0, -10, -40) : shift(0, -20, 45),
+        surface: isDark ? shift(0, -5, -35) : shift(0, -15, 40),
+        
+        // 3. Typography
+        // High contrast for readability
+        foreground: isDark ? "#ffffff" : "#1a1a1a",
+        // Lower contrast for secondary info
+        muted: isDark ? shift(0, -20, 20, 0.7) : shift(0, -20, -30, 0.6),
+
+        // 4. UI Elements
+        // Borders should be subtle: slightly darker than surface if light, lighter if dark
+        border: isDark ? shift(0, 0, 10, 0.2) : shift(0, 0, -10, 0.1),
+        
+        // 5. Interaction States
+        hover: shift(0, 0, isDark ? 10 : -10),
+        active: shift(0, 0, isDark ? -5 : 5),
+
+        // 6. Transparent variants for overlays/ghost buttons
+        ghost: shift(0, 0, 0, 0.12),
+    };
+};
+
 export const removeDuplicates = <T>(array: T[]): T[] => {
     return array.reduce((accumulator: T[], currentValue: T) => {
         if (!accumulator.includes(currentValue)) {

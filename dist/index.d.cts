@@ -141,6 +141,39 @@ declare const hexToRgba: (hex: string, alpha?: number) => string;
  * spectrum so sequential colors aren't just "slightly darker/lighter".
  */
 declare const generateColorHex: () => string;
+/**
+ * Converts Hex to HSL with flexible output formats.
+ * @param hex - The color string (e.g., "#ff0000" or "ff0000")
+ * @param format - 'object' (default) or 'string' for CSS hsl()
+ */
+type HSLObject = {
+    h: number;
+    s: number;
+    l: number;
+};
+declare function hexToHsl(hex: string, format: 'object'): HSLObject;
+declare function hexToHsl(hex: string, format: 'string'): string;
+/**
+ * Returns either #FFFFFF or a dark neutral #1A1A1A
+ * based on the background color's brightness.
+ */
+declare const getContrastColor: (hex: string) => string;
+/**
+ * Generates a functional UI palette based on a single seed color.
+ * Uses HSL manipulation to ensure visual harmony.
+ */
+declare const generatePalette: (seedHex: string) => {
+    primary: string;
+    onPrimary: string;
+    background: string;
+    surface: string;
+    foreground: string;
+    muted: string;
+    border: string;
+    hover: string;
+    active: string;
+    ghost: string;
+};
 declare const removeDuplicates: <T>(array: T[]) => T[];
 declare const removeDuplicateWords: (text: string) => string;
 declare const getCancelToken: () => CancelTokenSource;
@@ -199,4 +232,4 @@ declare const setCookie: ({ key, value, json, path, expires, domain, secure, sam
     sameSite?: "strict" | "Strict" | "lax" | "Lax" | "none" | "None" | undefined;
 }) => void;
 
-export { _ as "_", type EventListener, type FormatNumberParams, MD5, Events as PubSub, SORT, type WithHttpOptions, __SALT, arrayRand, camelCase, camelCaseToDash, checkPasswordStrength, clamp, copyToClipboard, type dynamic, enumToKeys, escapeRegex, exists, formatNumber, formatSize, fromHash, generateColorHex, getCancelToken, getCookie, hexToRgba, isColor, isColorName, isHexColor, isHslColor, isRgbaColor, natsort, numberInRange, pluralize, removeCookie, removeDuplicateWords, removeDuplicates, removeWords, setCookie, sleep, slugify, type sortOptions, time, timeSince, toHash, ucfirst, urlBase64ToUint8Array, urldecode, urlencode, uuid, uuid2, withCredentials, withDelay, withGet, withPatch, withPost, withPut, withTime };
+export { _ as "_", type EventListener, type FormatNumberParams, type HSLObject, MD5, Events as PubSub, SORT, type WithHttpOptions, __SALT, arrayRand, camelCase, camelCaseToDash, checkPasswordStrength, clamp, copyToClipboard, type dynamic, enumToKeys, escapeRegex, exists, formatNumber, formatSize, fromHash, generateColorHex, generatePalette, getCancelToken, getContrastColor, getCookie, hexToHsl, hexToRgba, isColor, isColorName, isHexColor, isHslColor, isRgbaColor, natsort, numberInRange, pluralize, removeCookie, removeDuplicateWords, removeDuplicates, removeWords, setCookie, sleep, slugify, type sortOptions, time, timeSince, toHash, ucfirst, urlBase64ToUint8Array, urldecode, urlencode, uuid, uuid2, withCredentials, withDelay, withGet, withPatch, withPost, withPut, withTime };

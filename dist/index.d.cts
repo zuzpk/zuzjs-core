@@ -135,6 +135,12 @@ declare const isHslColor: (color: string) => boolean;
 declare const isColorName: (color: string) => boolean;
 declare const isColor: (color: string) => boolean;
 declare const hexToRgba: (hex: string, alpha?: number) => string;
+/**
+ * Generates a unique, incremental hex color based on the current timestamp.
+ * Using a golden ratio multiplier helps spread the colors across the
+ * spectrum so sequential colors aren't just "slightly darker/lighter".
+ */
+declare const generateColorHex: () => string;
 declare const removeDuplicates: <T>(array: T[]) => T[];
 declare const removeDuplicateWords: (text: string) => string;
 declare const getCancelToken: () => CancelTokenSource;
@@ -193,4 +199,4 @@ declare const setCookie: ({ key, value, json, path, expires, domain, secure, sam
     sameSite?: "strict" | "Strict" | "lax" | "Lax" | "none" | "None" | undefined;
 }) => void;
 
-export { _ as "_", type EventListener, type FormatNumberParams, MD5, Events as PubSub, SORT, type WithHttpOptions, __SALT, arrayRand, camelCase, camelCaseToDash, checkPasswordStrength, clamp, copyToClipboard, type dynamic, enumToKeys, escapeRegex, exists, formatNumber, formatSize, fromHash, getCancelToken, getCookie, hexToRgba, isColor, isColorName, isHexColor, isHslColor, isRgbaColor, natsort, numberInRange, pluralize, removeCookie, removeDuplicateWords, removeDuplicates, removeWords, setCookie, sleep, slugify, type sortOptions, time, timeSince, toHash, ucfirst, urlBase64ToUint8Array, urldecode, urlencode, uuid, uuid2, withCredentials, withDelay, withGet, withPatch, withPost, withPut, withTime };
+export { _ as "_", type EventListener, type FormatNumberParams, MD5, Events as PubSub, SORT, type WithHttpOptions, __SALT, arrayRand, camelCase, camelCaseToDash, checkPasswordStrength, clamp, copyToClipboard, type dynamic, enumToKeys, escapeRegex, exists, formatNumber, formatSize, fromHash, generateColorHex, getCancelToken, getCookie, hexToRgba, isColor, isColorName, isHexColor, isHslColor, isRgbaColor, natsort, numberInRange, pluralize, removeCookie, removeDuplicateWords, removeDuplicates, removeWords, setCookie, sleep, slugify, type sortOptions, time, timeSince, toHash, ucfirst, urlBase64ToUint8Array, urldecode, urlencode, uuid, uuid2, withCredentials, withDelay, withGet, withPatch, withPost, withPut, withTime };

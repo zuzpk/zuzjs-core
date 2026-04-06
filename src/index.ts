@@ -81,6 +81,28 @@ export const hexToRgba = (hex: string, alpha: number = 1): string => {
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
+/**
+ * Generates a unique, incremental hex color based on the current timestamp.
+ * Using a golden ratio multiplier helps spread the colors across the 
+ * spectrum so sequential colors aren't just "slightly darker/lighter".
+ */
+export const generateColorHex = (): string => {
+    // Get high-resolution timestamp
+    // performance.now() is better than Date.now() for rapid-fire calls
+    const time = typeof window !== 'undefined' ? performance.now() : Date.now();
+    
+    // Use a large prime or the Golden Ratio (0x9E3779B9) 
+    // to jump across the color wheel for visual distinction
+    const phi = 0x9e3779b9;
+    const seed = Math.floor(time * phi);
+
+    // Mask to 24 bits (0xFFFFFF)
+    const colorInt = seed & 0xffffff;
+
+    // Convert to hex string and pad with zeros
+    return `#${colorInt.toString(16).padStart(6, '0')}`;
+};
+
 export const removeDuplicates = <T>(array: T[]): T[] => {
     return array.reduce((accumulator: T[], currentValue: T) => {
         if (!accumulator.includes(currentValue)) {

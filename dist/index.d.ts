@@ -39,6 +39,18 @@ type WithHttpOptions = {
     appendCookiesToBody?: boolean;
     appendTimestamp?: boolean;
 };
+interface ColorPalette {
+    primary: string;
+    onPrimary: string;
+    background: string;
+    surface: string;
+    foreground: string;
+    muted: string;
+    border: string;
+    hover: string;
+    active: string;
+    ghost: string;
+}
 
 interface Event {
     event: String | Symbol;
@@ -162,18 +174,7 @@ declare const getContrastColor: (hex: string) => string;
  * Generates a functional UI palette based on a single seed color.
  * Uses HSL manipulation to ensure visual harmony.
  */
-declare const generatePalette: (seedHex: string) => {
-    primary: string;
-    onPrimary: string;
-    background: string;
-    surface: string;
-    foreground: string;
-    muted: string;
-    border: string;
-    hover: string;
-    active: string;
-    ghost: string;
-};
+declare const generatePalette: (seedHex: string) => ColorPalette;
 declare const removeDuplicates: <T>(array: T[]) => T[];
 declare const removeDuplicateWords: (text: string) => string;
 declare const getCancelToken: () => CancelTokenSource;
@@ -232,4 +233,4 @@ declare const setCookie: ({ key, value, json, path, expires, domain, secure, sam
     sameSite?: "strict" | "Strict" | "lax" | "Lax" | "none" | "None" | undefined;
 }) => void;
 
-export { _ as "_", type EventListener, type FormatNumberParams, type HSLObject, MD5, Events as PubSub, SORT, type WithHttpOptions, __SALT, arrayRand, camelCase, camelCaseToDash, checkPasswordStrength, clamp, copyToClipboard, type dynamic, enumToKeys, escapeRegex, exists, formatNumber, formatSize, fromHash, generateColorHex, generatePalette, getCancelToken, getContrastColor, getCookie, hexToHsl, hexToRgba, isColor, isColorName, isHexColor, isHslColor, isRgbaColor, natsort, numberInRange, pluralize, removeCookie, removeDuplicateWords, removeDuplicates, removeWords, setCookie, sleep, slugify, type sortOptions, time, timeSince, toHash, ucfirst, urlBase64ToUint8Array, urldecode, urlencode, uuid, uuid2, withCredentials, withDelay, withGet, withPatch, withPost, withPut, withTime };
+export { _ as "_", type ColorPalette, type EventListener, type FormatNumberParams, type HSLObject, MD5, Events as PubSub, SORT, type WithHttpOptions, __SALT, arrayRand, camelCase, camelCaseToDash, checkPasswordStrength, clamp, copyToClipboard, type dynamic, enumToKeys, escapeRegex, exists, formatNumber, formatSize, fromHash, generateColorHex, generatePalette, getCancelToken, getContrastColor, getCookie, hexToHsl, hexToRgba, isColor, isColorName, isHexColor, isHslColor, isRgbaColor, natsort, numberInRange, pluralize, removeCookie, removeDuplicateWords, removeDuplicates, removeWords, setCookie, sleep, slugify, type sortOptions, time, timeSince, toHash, ucfirst, urlBase64ToUint8Array, urldecode, urlencode, uuid, uuid2, withCredentials, withDelay, withGet, withPatch, withPost, withPut, withTime };

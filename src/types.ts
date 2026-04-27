@@ -43,3 +43,31 @@ export type WithHttpOptions = {
     appendCookiesToBody?: boolean;
     appendTimestamp?: boolean;
 };
+
+export interface ColorPalette {
+    
+    // Core Brand / Action
+    primary: string,
+    onPrimary: string,
+
+    // Background & Surface
+    background: string,
+    surface: string,
+    
+    // Typography
+    foreground: string,
+    
+    // Lower contrast for secondary info
+    muted: string,
+
+    // UI Elements
+    border: string,
+    
+    // Interaction States
+    hover: string,
+    active: string,
+
+    // Transparent variants for overlays/ghost buttons
+    ghost: string,
+    
+}

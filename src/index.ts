@@ -7,7 +7,7 @@ import moment from "moment";
 import { nanoid } from "nanoid";
 import { colorNames } from "./colors";
 import { hexColorRegex, hslColorRegex, rgbaColorRegex } from "./regexps";
-import { dynamic, FormatNumberParams, SORT, sortOptions, WithHttpOptions } from "./types";
+import { ColorPalette, dynamic, FormatNumberParams, SORT, sortOptions, WithHttpOptions } from "./types";
 import _ from "./withGlobals";
 
 export { default as PubSub } from "./events";
@@ -176,7 +176,7 @@ export const getContrastColor = (hex: string): string => {
  * Generates a functional UI palette based on a single seed color.
  * Uses HSL manipulation to ensure visual harmony.
  */
-export const generatePalette = (seedHex: string) => {
+export const generatePalette = (seedHex: string) : ColorPalette => {
     const hsl = hexToHsl(seedHex, 'object');
     const isDark = getContrastColor(seedHex) === "#ffffff";
 

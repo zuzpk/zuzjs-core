@@ -502,25 +502,21 @@ export const withTime = ( fun : (...args: any[]) => any ) => {
 }
 
 export const time = (stamp?: number | Date | string, format?: string) => {
-
     const defaultFormat = format || `YYYY-MM-DD HH:mm:ss`;
 
-    if (!stamp) {
-        return moment().format(defaultFormat);
-    }
+    if (!stamp) return moment().format(defaultFormat);
+    if (stamp instanceof Date) return moment(stamp).format(defaultFormat);
 
-    // 1. Handle Date objects
-    if (stamp instanceof Date) {
-        return moment(stamp).format(defaultFormat);
-    }
-
-    // 2. Handle ISO Strings (e.g., "2026-03-16T..." or "2026-03-16")
     if (typeof stamp === 'string' && isNaN(Number(stamp))) {
-        return moment(stamp).format(defaultFormat);
+        const m = moment(stamp, moment.ISO_8601, true); // true = strict parsing
+        if (!m.isValid()) {
+            // This is where your "12 Apr 2026" string is landing.
+            // You can either handle specific formats or fallback safely:
+            return moment(new Date(stamp)).format(defaultFormat); 
+        }
+        return m.format(defaultFormat);
     }
 
-    // 3. Handle Numbers or Stringified Numbers (Timestamps)
-    // We check if it's likely milliseconds (13 digits) or seconds (10 digits)
     const numericStamp = Number(stamp);
     const isMilliseconds = numericStamp > 9999999999; 
     

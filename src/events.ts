@@ -6,10 +6,22 @@ export interface Event {
 }
 
 class Events {
-    _events: Event[];
 
-    constructor() {
+    _events: Event[];
+    private readonly prefixOnEmit: boolean;
+
+    constructor(config?: {
+        /** When true, emit("AddBoard") will dispatch to listeners of "onAddBoard" */
+        prefixOnEmit?: boolean;
+    }) {
         this._events = [];
+        this.prefixOnEmit = config?.prefixOnEmit === true;
+    }
+
+    private resolveEmitEventName(event: String | Symbol): String | Symbol {
+        if (!this.prefixOnEmit || typeof event !== "string") return event;
+        if (event.startsWith("on") && event.length > 2) return event;
+        return `on${event}`;
     }
 
     /**
@@ -73,13 +85,14 @@ class Events {
      * @param args Arguments to pass to the listeners.
      */
     emit(event: String | Symbol, ...args: any[]) {
-        const evt = this._events.find(x => x.event === event);
+        const resolvedEvent = this.resolveEmitEventName(event);
+        const evt = this._events.find(x => x.event === resolvedEvent);
         if (evt) {
             [...evt.listeners].forEach(({ fun, context }) => {
                 try {
                     fun.apply(context, args);
                 } catch (e) {
-                    console.error(`Error during event '${String(event)}' emission:`, e);
+                    console.error(`Error during event '${String(resolvedEvent)}' emission:`, e);
                 }
             });
         }

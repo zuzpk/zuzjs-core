@@ -58,7 +58,12 @@ interface Event {
 }
 declare class Events {
     _events: Event[];
-    constructor();
+    private readonly prefixOnEmit;
+    constructor(config?: {
+        /** When true, emit("AddBoard") will dispatch to listeners of "onAddBoard" */
+        prefixOnEmit?: boolean;
+    });
+    private resolveEmitEventName;
     /**
      * Registers an event listener.
      * @param event The name of the event.

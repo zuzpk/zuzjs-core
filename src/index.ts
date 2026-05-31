@@ -580,6 +580,8 @@ export const formatNumber = ({
     }).format(+number);
 }
 
+export const formatCurrency = (amount: number, symbol = `USD`) => formatNumber({ number: amount, currency: { style: `symbol`, code: symbol } })
+
 export const formatSize = (bytes : number | string) => {
 	const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
     const _bytes = `string` == typeof bytes ? parseFloat(bytes) : bytes

@@ -206,7 +206,7 @@ declare const time: (stamp?: number | Date | string, format?: string) => string;
 declare const timeSince: (stamp: number | Date | string) => string;
 declare const arrayRand: (arr: any[]) => any;
 declare const formatNumber: ({ number, locale, style, decimal, forceDecimal, currency }: FormatNumberParams) => string;
-declare const formatCurrency: (amount: number, symbol?: string) => string;
+declare const formatCurrency: (amount: number, symbol?: string, decimal?: number, forceDecimal?: boolean) => string;
 declare const formatSize: (bytes: number | string) => string;
 declare const copyToClipboard: (text: string) => Promise<unknown>;
 declare const natsort: (options?: sortOptions) => (a: string | number, b: string | number) => number;

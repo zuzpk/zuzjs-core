@@ -812,6 +812,34 @@ export const exists = async (path: string) => {
     }
 };
 
+export const getFileInfo = (path: string): { name: string; extension: string } => {
+    const normalizedPath = (path ?? "").trim();
+
+    if (!normalizedPath) {
+        return { name: "", extension: "" };
+    }
+
+    const fileName = normalizedPath
+        .split(/[\\/]/)
+        .pop()
+        ?.split(/[?#]/)[0] ?? "";
+
+    if (!fileName) {
+        return { name: "", extension: "" };
+    }
+
+    const extensionStart = fileName.lastIndexOf(".");
+
+    if (extensionStart <= 0) {
+        return { name: fileName, extension: "" };
+    }
+
+    return {
+        name: fileName.slice(0, extensionStart),
+        extension: fileName.slice(extensionStart + 1)
+    };
+};
+
 export const urlBase64ToUint8Array = (base64String: string | null | undefined): Uint8Array => {
     const normalizedBase64String = (base64String ?? '').trim();
 
@@ -940,3 +968,4 @@ export const setCookie = ({
     console.log(`--- Error setting cookie`, e)
 }
 }
+

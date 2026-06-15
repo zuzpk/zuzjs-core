@@ -204,6 +204,7 @@ declare const withTime: (fun: (...args: any[]) => any) => {
 };
 declare const time: (stamp?: number | Date | string, format?: string) => string;
 declare const timeSince: (stamp: number | Date | string) => string;
+declare const timeRemaining: (stamp: number | Date | string) => string;
 declare const arrayRand: (arr: any[]) => any;
 declare const formatNumber: ({ number, locale, style, decimal, forceDecimal, currency }: FormatNumberParams) => string;
 declare const formatCurrency: (amount: number, symbol?: string, decimal?: number, forceDecimal?: boolean) => string;
@@ -243,4 +244,4 @@ declare const setCookie: ({ key, value, json, path, expires, domain, secure, sam
     sameSite?: "strict" | "Strict" | "lax" | "Lax" | "none" | "None" | undefined;
 }) => void;
 
-export { _ as "_", type ColorPalette, type EventListener, type FormatNumberParams, type HSLObject, MD5, Events as PubSub, SORT, type WithHttpOptions, __SALT, arrayRand, camelCase, camelCaseToDash, checkPasswordStrength, clamp, copyToClipboard, type dynamic, enumToKeys, escapeRegex, exists, formatCurrency, formatNumber, formatSize, fromHash, generateColorHex, generatePalette, getCancelToken, getContrastColor, getCookie, getFileInfo, hexToHsl, hexToRgba, isColor, isColorName, isHexColor, isHslColor, isRgbaColor, natsort, numberInRange, pluralize, removeCookie, removeDuplicateWords, removeDuplicates, removeWords, setCookie, sleep, slugify, type sortOptions, time, timeSince, toHash, ucfirst, urlBase64ToUint8Array, urldecode, urlencode, uuid, uuid2, withCredentials, withDelay, withGet, withPatch, withPost, withPut, withTime };
+export { _ as "_", type ColorPalette, type EventListener, type FormatNumberParams, type HSLObject, MD5, Events as PubSub, SORT, type WithHttpOptions, __SALT, arrayRand, camelCase, camelCaseToDash, checkPasswordStrength, clamp, copyToClipboard, type dynamic, enumToKeys, escapeRegex, exists, formatCurrency, formatNumber, formatSize, fromHash, generateColorHex, generatePalette, getCancelToken, getContrastColor, getCookie, getFileInfo, hexToHsl, hexToRgba, isColor, isColorName, isHexColor, isHslColor, isRgbaColor, natsort, numberInRange, pluralize, removeCookie, removeDuplicateWords, removeDuplicates, removeWords, setCookie, sleep, slugify, type sortOptions, time, timeRemaining, timeSince, toHash, ucfirst, urlBase64ToUint8Array, urldecode, urlencode, uuid, uuid2, withCredentials, withDelay, withGet, withPatch, withPost, withPut, withTime };

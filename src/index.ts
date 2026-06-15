@@ -546,6 +546,43 @@ export const timeSince = (stamp: number | Date | string) => {
         : moment.unix(numericStamp).fromNow();
 };
 
+export const timeRemaining = (stamp: number | Date | string): string => {
+    let futureDate: moment.Moment;
+
+    // 1. Parse the input timestamp accurately based on type layout
+    if (stamp instanceof Date) {
+        futureDate = moment(stamp);
+    } else if (typeof stamp === 'string' && isNaN(Number(stamp))) {
+        futureDate = moment(stamp);
+    } else {
+        const numericStamp = Number(stamp);
+        const isMilliseconds = numericStamp > 9999999999;
+        futureDate = isMilliseconds ? moment(numericStamp) : moment.unix(numericStamp);
+    }
+
+    const now = moment();
+    
+    // If the due date has already passed, return a fallback marker string
+    if (futureDate.isBefore(now)) {
+        return "Expired";
+    }
+
+    // 2. Compute the exact duration gap across units
+    const duration = moment.duration(futureDate.diff(now));
+    
+    const days = Math.floor(duration.asDays());
+    const hours = duration.hours();
+    const minutes = duration.minutes();
+
+    // 3. Construct a clean, compact string sequence (e.g., "3d 5h 14m left")
+    let parts: string[] = [];
+    if (days > 0) parts.push(`${days}d`);
+    if (hours > 0 || days > 0) parts.push(`${hours}h`); // Keep hours if days exist (e.g., "1d 0h")
+    parts.push(`${minutes}m`);
+
+    return `${parts.join(" ")} left`;
+};
+
 export const arrayRand = (arr: any[]) => arr[Math.floor(Math.random() * arr.length)]
 
 export const formatNumber = ({
@@ -849,12 +886,13 @@ export const urlBase64ToUint8Array = (base64String: string | null | undefined): 
 
     const padding = '='.repeat((4 - normalizedBase64String.length % 4) % 4);
     const base64 = (normalizedBase64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-  const rawData = window.atob(base64);
-  const outputArray = new Uint8Array(rawData.length);
-  for (let i = 0; i < rawData.length; ++i) {
-    outputArray[i] = rawData.charCodeAt(i);
-  }
-  return outputArray;
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+
 }
 
 export const checkPasswordStrength = (password: string | null | undefined): {

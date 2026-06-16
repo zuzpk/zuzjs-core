@@ -71,3 +71,11 @@ export interface ColorPalette {
     ghost: string,
     
 }
+
+export type TimeRemainingFormat = 'compact' | 'verbose' | 'digital';
+
+export interface TimeRemainingOptions {
+    label?: string;        // e.g., "left" -> "3d 5h left"
+    expireLabel?: string;  // e.g., "Ended", defaults to "Expired"
+    format?: TimeRemainingFormat; // 'compact' | 'verbose' | 'digital'
+}

@@ -7,7 +7,7 @@ import moment from "moment";
 import { nanoid } from "nanoid";
 import { colorNames } from "./colors";
 import { hexColorRegex, hslColorRegex, rgbaColorRegex } from "./regexps";
-import { ColorPalette, dynamic, FormatNumberParams, SORT, sortOptions, WithHttpOptions } from "./types";
+import { ColorPalette, dynamic, FormatNumberParams, SORT, sortOptions, TimeRemainingOptions, WithHttpOptions } from "./types";
 import _ from "./withGlobals";
 
 export { default as PubSub } from "./events";
@@ -546,10 +546,13 @@ export const timeSince = (stamp: number | Date | string) => {
         : moment.unix(numericStamp).fromNow();
 };
 
-export const timeRemaining = (stamp: number | Date | string): string => {
+export const timeRemaining = (
+    stamp: number | Date | string,
+    options?: TimeRemainingOptions
+): string => {
     let futureDate: moment.Moment;
 
-    // 1. Parse the input timestamp accurately based on type layout
+    // Parse the input timestamp accurately
     if (stamp instanceof Date) {
         futureDate = moment(stamp);
     } else if (typeof stamp === 'string' && isNaN(Number(stamp))) {
@@ -562,25 +565,62 @@ export const timeRemaining = (stamp: number | Date | string): string => {
 
     const now = moment();
     
-    // If the due date has already passed, return a fallback marker string
+    // Check if expired
     if (futureDate.isBefore(now)) {
-        return "Expired";
+        return options?.expireLabel ?? "Expired";
     }
 
-    // 2. Compute the exact duration gap across units
+    // Compute exact duration gap
     const duration = moment.duration(futureDate.diff(now));
     
     const days = Math.floor(duration.asDays());
     const hours = duration.hours();
     const minutes = duration.minutes();
+    const seconds = duration.seconds();
 
-    // 3. Construct a clean, compact string sequence (e.g., "3d 5h 14m left")
-    let parts: string[] = [];
-    if (days > 0) parts.push(`${days}d`);
-    if (hours > 0 || days > 0) parts.push(`${hours}h`); // Keep hours if days exist (e.g., "1d 0h")
-    parts.push(`${minutes}m`);
+    const formatStyle = options?.format ?? 'compact';
+    let resultString = '';
 
-    return `${parts.join(" ")} left`;
+    // Handle different display formats
+    switch (formatStyle) {
+        case 'verbose': {
+            let parts: string[] = [];
+            if (days > 0) parts.push(`${days} ${days === 1 ? 'day' : 'days'}`);
+            if (hours > 0 || days > 0) parts.push(`${hours} ${hours === 1 ? 'hour' : 'hours'}`);
+            parts.push(`${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`);
+            resultString = parts.join(", ");
+            break;
+        }
+
+        case 'digital': {
+            // Aggregate days directly into the hours pool for an absolute countdown clock style (e.g., 77:14:05)
+            const totalHours = Math.floor(duration.asHours());
+            const hh = String(totalHours).padStart(2, '0');
+            const mm = String(minutes).padStart(2, '0');
+            const ss = String(seconds).padStart(2, '0');
+            resultString = `${hh}:${mm}:${ss}`;
+            break;
+        }
+
+        case 'compact':
+        default: {
+            let parts: string[] = [];
+            if (days > 0) parts.push(`${days}d`);
+            if (hours > 0 || days > 0) parts.push(`${hours}h`);
+            parts.push(`${minutes}m`);
+            resultString = parts.join(" ");
+            break;
+        }
+    }
+
+    // Append trailing user label if provided
+    if (options?.label) {
+        // Fix potential visual bug: don't append standard text labels right next to a digital ticking string
+        const separator = formatStyle === 'digital' ? ' ' : ' '; 
+        return `${resultString}${separator}${options.label}`;
+    }
+
+    return resultString;
 };
 
 export const arrayRand = (arr: any[]) => arr[Math.floor(Math.random() * arr.length)]

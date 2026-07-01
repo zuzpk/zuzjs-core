@@ -623,7 +623,20 @@ export const timeRemaining = (
     return resultString;
 };
 
-export const arrayRand = (arr: any[]) => arr[Math.floor(Math.random() * arr.length)]
+export const arrayRand = <T>(array: T[]): T[] => {
+  // Create a copy to avoid mutating the original array directly
+  const shuffled = [...array]; 
+  
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    // Swap elements
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  
+  return shuffled;
+}
+
+export { arrayRand as shuffle };
 
 export const formatNumber = ({
     number,
